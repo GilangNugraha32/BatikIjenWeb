@@ -1,7 +1,4 @@
-<?php
-include 'koneksi.php';
-$query = mysqli_query($koneksi, "SELECT * from tb_produk ORDER BY id_produk ASC ")
-?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -66,9 +63,25 @@ $query = mysqli_query($koneksi, "SELECT * from tb_produk ORDER BY id_produk ASC 
                 <a href="#" class="sidebar-toggler flex-shrink-0">
                     <i class="fa fa-bars"></i>
                 </a>
-                <form class="d-none d-md-flex ms-4">
-                    <input class="form-control border-0" type="search" placeholder="Cari">
+                <form class="d-none d-md-flex ms-4" method="GET" action="produkkami.php">
+                    <input class="form-control border-0" type="text" value="<?php if (isset($_GET['cariProduk'])) {
+                                                                                echo $_GET['cariProduk'];
+                                                                            } ?>" name="cariProduk" autocomplete="off" placeholder="Cari...">
+                    <button class="btn btn-light " type="submit" id="tombol-cari">Search</button>
                 </form>
+                <?php
+                include 'koneksi.php';
+                if (isset($_GET['cariProduk'])) {
+
+                    $pencarianProduk = $_GET['cariProduk'];
+
+                    $query =  mysqli_query($koneksi, "SELECT * from tb_produk  WHERE nama_produk LIKE '%$pencarianProduk%' ORDER BY id_produk ASC");
+                    # code...
+                } else {
+                    $query = mysqli_query($koneksi, "SELECT * from tb_produk ORDER BY id_produk ASC");
+                }
+
+                ?>
                 <div class="navbar-nav align-items-center ms-auto">
                     <div class="nav-item dropdown">
                     </div>
@@ -107,7 +120,7 @@ $query = mysqli_query($koneksi, "SELECT * from tb_produk ORDER BY id_produk ASC 
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <?php if(mysqli_num_rows($query)) {?>
+                                        
                                             <?php while($row = mysqli_fetch_array($query)) {?>
                                         <tr>
                                             <td class="text-center"><?php echo $row['id_produk'] ?></td>
@@ -182,7 +195,7 @@ $query = mysqli_query($koneksi, "SELECT * from tb_produk ORDER BY id_produk ASC 
                                             </tr>
                                         </tr>
                                         <?php } ?>
-                                        <?php } ?>
+                                    
                                         </tr>
                                     </tbody>
 

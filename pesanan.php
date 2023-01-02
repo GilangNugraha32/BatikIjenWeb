@@ -61,9 +61,24 @@
                 <a href="#" class="sidebar-toggler flex-shrink-0">
                     <i class="fa fa-bars"></i>
                 </a>
-                <form class="d-none d-md-flex ms-4">
-                    <input class="form-control border-0" type="search" placeholder="Cari">
+                <form class="d-none d-md-flex ms-4" method="GET" action="pesanan.php">
+                    <input class="form-control border-0" type="text" value="<?php if (isset($_GET['cariPesanan'])) {
+                                                                                echo $_GET['cariPesanan'];
+                                                                            } ?>" name="cariPesanan" autocomplete="off" placeholder="Cari...">
+                    <button class="btn btn-light " type="submit" id="tombol-cari">Search</button>
                 </form>
+                <?php
+                include 'koneksi.php';
+                if (isset($_GET['cariPesanan'])) {
+
+                    $pencarianPesanan = $_GET['cariPesanan'];
+
+                    $query =  mysqli_query($koneksi, "SELECT pesanan.id_pesanan, tb_pengguna.nama_lengkap, pesanan.tanggal_pesanan, pesanan.status_pesanan, pesanan.total FROM pesanan JOIN tb_pengguna ON pesanan.id_pengguna = tb_pengguna.id_pengguna AND tb_pengguna.nama_lengkap LIKE '%$pencarianPesanan%'");
+                    # code...
+                } else {
+                    $query = mysqli_query($koneksi, "SELECT pesanan.id_pesanan, tb_pengguna.nama_lengkap, pesanan.tanggal_pesanan, pesanan.status_pesanan, pesanan.total FROM pesanan JOIN tb_pengguna ON pesanan.id_pengguna = tb_pengguna.id_pengguna");
+                } ?>
+
                 <div class="navbar-nav align-items-center ms-auto">
                     <div class="nav-item dropdown">
 
@@ -146,8 +161,6 @@
                                     <tbody>
                                         <?php
                                         include 'koneksi.php';
-                                        $query = mysqli_query($koneksi, "SELECT pesanan.id_pesanan, tb_pengguna.nama_lengkap, pesanan.tanggal_pesanan, pesanan.status_pesanan, pesanan.total FROM pesanan JOIN tb_pengguna ON pesanan.id_pengguna = tb_pengguna.id_pengguna");
-                                         if (mysqli_num_rows($query)) { 
                                              while ($row = mysqli_fetch_array($query)) { ?>
                                                 <tr>
                                                     <td class="text-center"><?php echo $row['id_pesanan'] ?></td>
@@ -178,6 +191,7 @@
                                                                                 </div>
                                                                                 <select  class="form-select" name="pilihstatus" id="pilihstatus">
                                                                                     <option value="<?php echo $row['status_pesanan']; ?>"><?php echo $row['status_pesanan']; ?></option>
+                                                                                    <option value="Konfirmasi">Konfirmasi</option>
                                                                                     <option value="Pesanan dalam proses">Pesanan dalam proses</option>
                                                                                     <option value="Pesanan dalam pengiriman">Pesanan dalam pengiriman</option>
                                                                                     <option value="Selesai">Selesai</option>
@@ -200,7 +214,7 @@
                                                         </td>
                                                 </tr>
                                             <?php } ?>
-                                        <?php } ?>
+                                        <?php  ?>
                                         </tr>
                                     </tbody>
                                 </table>

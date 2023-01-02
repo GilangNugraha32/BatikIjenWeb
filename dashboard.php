@@ -1,12 +1,6 @@
 <?php
 
 include 'koneksi.php';
-$query = mysqli_query($koneksi, "SELECT pesanan.id_pesanan, tb_pengguna.nama_lengkap, pesanan.tanggal_pesanan, pesanan.status_pesanan, pesanan.total ,detail_pesanan.sub_total,detail_pesanan.id_pesanan,detail_pesanan.id_produk,detail_pesanan.jumlah_pesanan FROM pesanan 
-JOIN tb_pengguna 
-ON pesanan.id_pengguna = tb_pengguna.id_pengguna  
-JOIN detail_pesanan 
-ON pesanan.id_pesanan=detail_pesanan.id_pesanan")
-
 
 ?>
 
@@ -77,22 +71,35 @@ ON pesanan.id_pesanan=detail_pesanan.id_pesanan")
                     <i class="fa fa-bars"></i>
                 </a>
                 <form class="d-none d-md-flex ms-4" method="GET" action="dashboard.php">
-                    <input class="form-control border-0" type="text" value="<?php if(isset($_GET['cariDashboard'])){echo $_GET['cariDashboard'];} ?>"  name="cariDashboard" autocomplete="off"  placeholder="Cari...">
-                    <button class ="btn btn-light "type="submit" id="tombol-cari">Search</button>
+                    <input class="form-control border-0" type="text" value="<?php if (isset($_GET['cariDashboard'])) {
+                                                                                echo $_GET['cariDashboard'];
+                                                                            } ?>" name="cariDashboard" autocomplete="off" placeholder="Cari...">
+                    <button class="btn btn-light " type="submit" id="tombol-cari">Search</button>
                 </form>
-                <?php 
+                <?php
                 include 'koneksi.php';
                 if (isset($_GET['cariDashboard'])) {
 
-                    $pencarianDashboard=$_GET['cariDashboard'];
-                    $queryCari="SELECT pesanan.id_pesanan, tb_pengguna.nama_lengkap, pesanan.tanggal_pesanan, pesanan.status_pesanan, pesanan.total ,detail_pesanan.sub_total,detail_pesanan.id_pesanan,detail_pesanan.id_produk,detail_pesanan.jumlah_pesanan FROM pesanan 
+                    $pencarianDashboard = $_GET['cariDashboard'];
+
+                    $query =  mysqli_query($koneksi, "SELECT pesanan.id_pesanan, tb_pengguna.nama_lengkap, pesanan.tanggal_pesanan, pesanan.status_pesanan, 
+                    pesanan.total ,detail_pesanan.sub_total,detail_pesanan.id_pesanan,tb_produk.nama_produk,detail_pesanan.jumlah_pesanan FROM pesanan 
                     JOIN tb_pengguna 
                     ON pesanan.id_pengguna = tb_pengguna.id_pengguna  
                     JOIN detail_pesanan 
-                    ON pesanan.id_pesanan=detail_pesanan.id_pesanan WHERE tb_pengguna.nama_lengkap LIKE '%$pencarianDashboard%'";
+                    ON pesanan.id_pesanan=detail_pesanan.id_pesanan 
+                    JOIN tb_produk ON tb_produk.id_produk = detail_pesanan.id_produk WHERE pesanan.status_pesanan= 'Konfirmasi' AND tb_pengguna.nama_lengkap LIKE '%$pencarianDashboard%'");
                     # code...
+                } else {
+                    $query = mysqli_query($koneksi, "SELECT pesanan.id_pesanan, tb_pengguna.nama_lengkap, pesanan.tanggal_pesanan, pesanan.status_pesanan, 
+                    pesanan.total ,detail_pesanan.sub_total,detail_pesanan.id_pesanan,tb_produk.nama_produk,detail_pesanan.jumlah_pesanan FROM pesanan 
+                    JOIN tb_pengguna 
+                    ON pesanan.id_pengguna = tb_pengguna.id_pengguna  
+                    JOIN detail_pesanan 
+                    ON pesanan.id_pesanan=detail_pesanan.id_pesanan 
+                    JOIN tb_produk ON tb_produk.id_produk = detail_pesanan.id_produk WHERE pesanan.status_pesanan= 'Konfirmasi'");
                 }
-                
+
                 ?>
                 <div class="navbar-nav align-items-center ms-auto">
                     <div class="nav-item dropdown">
@@ -108,29 +115,28 @@ ON pesanan.id_pesanan=detail_pesanan.id_pesanan")
                             </div>
                         </div>
                     </div>
-</div>    
+                </div>
             </nav>
-            <?php 
-          include "koneksi.php";
-          $query1 = mysqli_query($koneksi, "SELECT detail_pesanan.sub_total as sub_total, detail_pesanan.id_pesanan, pesanan.id_pengguna
+            <?php
+            include "koneksi.php";
+            $query1 = mysqli_query($koneksi, "SELECT detail_pesanan.sub_total as sub_total, detail_pesanan.id_pesanan, pesanan.id_pengguna
           FROM detail_pesanan
-          INNER JOIN pesanan ON detail_pesanan.id_pesanan=pesanan.id_pesanan;");
-          $totalsaldo=0;
-           if (mysqli_num_rows($query1)) { 
-            while ($row1 = mysqli_fetch_array($query1)) { 
-                $totalsaldo += $row1["sub_total"];
-
+          INNER JOIN pesanan ON detail_pesanan.id_pesanan=pesanan.id_pesanan WHERE pesanan.status_pesanan='Selesai'; ");
+            $totalsaldo = 0;
+            if (mysqli_num_rows($query1)) {
+                while ($row1 = mysqli_fetch_array($query1)) {
+                    $totalsaldo += $row1["sub_total"];
+                }
             }
-        }
 
-          
-          $get2= mysqli_query($koneksi,"SELECT * FROM pesanan WHERE  status_pesanan='Pesanan dalam proses'" );
-          $countproses= mysqli_num_rows($get2);
 
-          $get3= mysqli_query($koneksi,"SELECT * FROM category " );
-          $kategori= mysqli_num_rows($get3);
-          
-          ?>
+            $get2 = mysqli_query($koneksi, "SELECT * FROM pesanan WHERE  status_pesanan='Konfirmasi'");
+            $countproses = mysqli_num_rows($get2);
+
+            $get3 = mysqli_query($koneksi, "SELECT * FROM category ");
+            $kategori = mysqli_num_rows($get3);
+
+            ?>
 
             <!-- Navbar End -->
 
@@ -172,7 +178,7 @@ ON pesanan.id_pesanan=detail_pesanan.id_pesanan")
                     <div class="container-fluid pt-4 px-4">
                         <div class="bg-light text-center rounded p-4">
                             <div class="d-flex align-items-center justify-content-between mb-4">
-                                <h6 class="mb-0">Pesanan Selesai</h6>
+                                <h6 class="mb-0">Pesanan Terbaru</h6>
 
                             </div>
                             <div class="table-responsive" id="container">
@@ -188,68 +194,68 @@ ON pesanan.id_pesanan=detail_pesanan.id_pesanan")
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <?php if (mysqli_num_rows($query)) { 
-                                            while ($row = mysqli_fetch_array($query)) { ?>
-                                                <tr>
-                                                    <td class="text-center"><?php echo $row['id_pesanan'] ?></td>
-                                                    <td class="text-center"><?php echo $row['nama_lengkap'] ?></td>
-                                                    <td class="text-center"><?php echo $row['tanggal_pesanan'] ?></td>
-                                                    <td class="text-center"><?php echo $row['status_pesanan'] ?></td>
-                                                    <td class="text-center"><?php echo $row['total'] ?></td>
-                                                    <div class="d-grid gap-2">
-                                                        <!-- Button trigger modal -->
-                                                        <td><button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#modalEditPesanan<?php echo $row['id_pesanan']; ?>" name="btn_edit" href="editpesanan.php?id_pesanan=?">Detail Produk</button>
-                                                            <div class="modal fade" id="modalEditPesanan<?php echo $row['id_pesanan']; ?>" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                                                                <div class="modal-dialog">
-                                                                    <div class="modal-content">
-                                                                        <div class="modal-header">
-                                                                            <h5 class="modal-title" id="exampleModalLabel">Detail Produk</h5>
-                                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        <?php
+                                        while ($row = mysqli_fetch_array($query)) { ?>
+                                            <tr>
+                                                <td class="text-center"><?php echo $row['id_pesanan'] ?></td>
+                                                <td class="text-center"><?php echo $row['nama_lengkap'] ?></td>
+                                                <td class="text-center"><?php echo $row['tanggal_pesanan'] ?></td>
+                                                <td class="text-center"><?php echo $row['status_pesanan'] ?></td>
+                                                <td class="text-center"><?php echo $row['total'] ?></td>
+                                                <div class="d-grid gap-2">
+                                                    <!-- Button trigger modal -->
+                                                    <td><button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#modalEditPesanan<?php echo $row['id_pesanan']; ?>" name="btn_edit" href="editpesanan.php?id_pesanan=?">Detail Produk</button>
+                                                        <div class="modal fade" id="modalEditPesanan<?php echo $row['id_pesanan']; ?>" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                                            <div class="modal-dialog">
+                                                                <div class="modal-content">
+                                                                    <div class="modal-header">
+                                                                        <h5 class="modal-title" id="exampleModalLabel">Detail Produk</h5>
+                                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+
+                                                                    </div>
+
+                                                                    <form action="function/editpesanan.php" method="POST">
+                                                                        <input type="hidden" name="no_pesanan" id="no_pesanan" value="<?php echo $row['id_pesanan'] ?>">
+
+                                                                        <div class="modal-body">
+                                                                            <div class="form-group col-md-25">
+                                                                                <div class="modal-body">
+                                                                                    <div class="col-md-12">
+                                                                                        <label for="nama_produk" class="form-label">Id Produk</label>
+                                                                                        <input type="nama_produk" class="form-control" id="nama_produk" value="<?php echo $row['id_pesanan'] ?>" name="nama_produk" disabled>
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div class="modal-body">
+                                                                                    <div class="col-md-12">
+                                                                                        <label for="nama_produk" class="form-label">Nama Produk</label>
+                                                                                        <input type="nama_produk" class="form-control" id="nama_produk" value="<?php echo $row['nama_produk'] ?>" name="nama_produk" disabled>
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div class="modal-body">
+                                                                                    <div class="col-md-12">
+                                                                                        <label for="nama_produk" class="form-label">Jumlah Pesanan</label>
+                                                                                        <input type="nama_produk" class="form-control" id="nama_produk" value="<?php echo $row['jumlah_pesanan'] ?>" name="nama_produk" disabled>
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div class="modal-body">
+                                                                                    <div class="col-md-12">
+                                                                                        <label for="nama_produk" class="form-label">Sub Total Harga</label>
+                                                                                        <input type="nama_produk" class="form-control" id="nama_produk" value="<?php echo $row['sub_total'] ?>" name="nama_produk" disabled>
+                                                                                    </div>
+                                                                                </div>
+
+                                                                                    
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="modal-footer">
+                                                                            <button type="button" class="btn btn-Secondary" data-bs-dismiss="modal">Close</button>
 
                                                                         </div>
+                                                                    </form>
 
-                                                                        <form action="function/editpesanan.php" method="POST">
-                                                                            <input type="hidden" name="no_pesanan" id="no_pesanan" value="<?php echo $row['id_pesanan'] ?>">
- 
-                                                                            <div class="modal-body">
-                                                                                <div class="form-group col-md-25">
-                                                                                    <div class="modal-body">
-                                                                                        <div class="col-md-12">
-                                                                                            <label for="nama_produk" class="form-label">Id Produk</label>
-                                                                                            <input type="nama_produk" class="form-control" id="nama_produk" value="<?php echo $row['id_pesanan'] ?>" name="nama_produk" disabled>
-                                                                                        </div>
-                                                                                    </div>
-                                                                                    <div class="modal-body">
-                                                                                        <div class="col-md-12">
-                                                                                            <label for="nama_produk" class="form-label">Id Pesanan</label>
-                                                                                            <input type="nama_produk" class="form-control" id="nama_produk" value="<?php echo $row['id_produk'] ?>" name="nama_produk" disabled>
-                                                                                        </div>
-                                                                                    </div>
-                                                                                    <div class="modal-body">
-                                                                                        <div class="col-md-12">
-                                                                                            <label for="nama_produk" class="form-label">Jumlah Pesanan</label>
-                                                                                            <input type="nama_produk" class="form-control" id="nama_produk" value="<?php echo $row['jumlah_pesanan'] ?>" name="nama_produk" disabled>
-                                                                                        </div>
-                                                                                    </div>
-                                                                                    <div class="modal-body">
-                                                                                        <div class="col-md-12">
-                                                                                            <label for="nama_produk" class="form-label">Sub Total Harga</label>
-                                                                                            <input type="nama_produk" class="form-control" id="nama_produk" value="<?php echo $row['sub_total'] ?>" name="nama_produk" disabled>
-                                                                                        </div>
-                                                                                    </div>
-
-                                                                                        
-                                                                                </div>
-                                                                            </div>
-                                                                            <div class="modal-footer">
-                                                                                <button type="button" class="btn btn-Secondary" data-bs-dismiss="modal">Close</button>
-                                                                                
-                                                                            </div>
-                                                                        </form>
-
-                                                </tr>
-                                            <?php } ?>
+                                            </tr>
                                         <?php } ?>
+                                        <?php  ?>
                                         </tr>
                                     </tbody>
 
@@ -279,7 +285,7 @@ ON pesanan.id_pesanan=detail_pesanan.id_pesanan")
             <script src="lib/tempusdominus/js/moment.min.js"></script>
             <script src="lib/tempusdominus/js/moment-timezone.min.js"></script>
             <script src="lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js"></script>
-                        
+
             <!-- Template Javascript -->
             <script src="js/main.js"></script>
             <script src="js/scriptcari.js"></script>
